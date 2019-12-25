@@ -28,6 +28,22 @@ void load_emb_csv(int num, vector<vector<mydataFmt>> &vecVec) {
     }
 }
 
+void write_emb_csv(vector<mydataFmt> &o, int num) {
+    ofstream outFile;
+    outFile.open("../emb_csv/" + to_string(num + 1) + ".csv", ios::out); // 打开模式可省略
+    for (int l = 0; l < Num; ++l) {
+//            cout << o[l] << endl;
+        if (l == Num - 1) {
+            outFile << o[l];
+        } else {
+            outFile << o[l] << ',';
+        }
+    }
+    outFile << endl;
+    outFile.close();
+    cout << "write over!" << endl;
+}
+
 float compare(vector<mydataFmt> &lineArray0, vector<mydataFmt> &lineArray1) {
     mydataFmt sum = 0;
     for (int i = 0; i < Num; ++i) {
@@ -39,7 +55,6 @@ float compare(vector<mydataFmt> &lineArray0, vector<mydataFmt> &lineArray1) {
     mydataFmt result = sqrt(sum);
     return result;
 }
-
 
 void run_mtcnn(Mat &image, vector<Rect> &vecRect) {
     vector<Point> vecPoint;
@@ -62,6 +77,9 @@ void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num) {
         vector<mydataFmt> n;
         vector<vector<mydataFmt>> o;
         ggg.run(fourthImage, n, i);
+
+//        write_emb_csv(n, i);
+//        return;
         load_emb_csv(csv_num, o);
         for (int j = 0; j < o.size(); ++j) {
             float result = compare(n, o[j]);
@@ -74,14 +92,13 @@ void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num) {
     }
 }
 
-
 void run() {
     int b = 0;
     if (b == 0) {
 //        Mat image = imread("../40.jpg");
-//        Mat image = imread("../1.jpeg");
+//        Mat image = imread("../3.jpeg");
 //        Mat image = imread("../Kong_Weiye.jpg");
-        Mat image = imread("../Kong_Weiye1.jpg");
+        Mat image = imread("../kkk.jpg");
 //        Mat image = imread("../20.png");
 //        Mat image = imread("../emb_img/0.jpg");
 
@@ -89,7 +106,7 @@ void run() {
         start = clock();
         vector<Rect> vecRect;
         run_mtcnn(image, vecRect);
-        run_facenet(image, vecRect, 5);
+        run_facenet(image, vecRect, 13);
 
         imshow("result", image);
         imwrite("../result.jpg", image);
