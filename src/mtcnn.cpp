@@ -473,7 +473,7 @@ mtcnn::~mtcnn() {
     delete[]simpleFace_;
 }
 
-void mtcnn::findFace(Mat &image) {
+void mtcnn::findFace(Mat &image, vector<Rect> &vecRect, vector<Point> &vecPoint) {
     struct orderScore order;
     int count = 0;
     if (image.empty())
@@ -568,13 +568,20 @@ void mtcnn::findFace(Mat &image) {
     int saveflag = 2;//0 预处理 1 预测识别 2 单独运行
     for (vector<struct Bbox>::iterator it = thirdBbox_.begin(); it != thirdBbox_.end(); it++) {
         if ((*it).exist && ((*it).y1 < (*it).y2) && ((*it).x1 < (*it).x2)) {
+            Rect temp((*it).y1, (*it).x1, (*it).y2 - (*it).y1, (*it).x2 - (*it).x1);
+            vecPoint.push_back(Point((*it).y1, (*it).x1));
+            vecPoint.push_back(Point((*it).y2, (*it).x2));
+            for (int num = 0; num < 5; num++)
+                vecPoint.push_back(Point((int) *(it->ppoint + num), (int) *(it->ppoint + num + 5)));
+
+            vecRect.push_back(temp);
             if (saveflag == 0) {
                 Rect temp((*it).y1, (*it).x1, (*it).y2 - (*it).y1, (*it).x2 - (*it).x1);
                 Mat fourthImage;
                 resize(image(temp), fourthImage, Size(299, 299), 0, 0, cv::INTER_LINEAR);
                 facenet ggg;
                 mydataFmt *o = new mydataFmt[Num];
-                ggg.run(fourthImage, o, num);
+//                ggg.run(fourthImage, o, num);
                 imshow("result", fourthImage);
                 imwrite("../emb_img/" + to_string(num) + ".jpg", fourthImage);
                 waitKey(3000);
@@ -595,58 +602,9 @@ void mtcnn::findFace(Mat &image) {
                 outFile << endl;
                 outFile.close();
                 delete o;
-            } else if (saveflag == 1) {
-                Rect temp((*it).y1, (*it).x1, (*it).y2 - (*it).y1, (*it).x2 - (*it).x1);
-                Mat fourthImage;
-                resize(image(temp), fourthImage, Size(299, 299), 0, 0, cv::INTER_LINEAR);
-                facenet ggg;
-                mydataFmt *o = new mydataFmt[Num];
-                ggg.run(fourthImage, o, num);
-                imshow("result", fourthImage);
-                waitKey(3000);
-                destroyWindow("result");
-
-                ifstream inFile("../emb_csv/" + to_string(num) + ".csv", ios::in);
-                string lineStr;
-//                vector<vector<mydataFmt>> strArray;
-                vector<mydataFmt> lineArray;
-                while (getline(inFile, lineStr)) {
-                    // 打印整行字符串
-//                    cout << lineStr << endl;
-                    // 存成二维表结构
-                    stringstream ss(lineStr);
-                    string str;
-//                    vector<mydataFmt> lineArray;
-                    // 按照逗号分隔
-//                    mydataFmt nnn = 0;
-                    while (getline(ss, str, ',')) {
-                        lineArray.push_back(atof(str.c_str()));
-//                        cout << str << endl;
-                    }
-//                    strArray.push_back(lineArray);
-                }
-                mydataFmt sum = 0;
-                for (int i = 0; i < Num; ++i) {
-                    cout << o[i] << "===" << lineArray[i] << endl;
-                    mydataFmt sub = o[i] - lineArray[i];
-                    mydataFmt square = pow(sub, 2);
-                    sum += square;
-                }
-                mydataFmt result = sqrt(sum);
-                cout << result << endl;
-                if (result < 0.85)
-                    cout << "it's me" << endl;
-                else
-                    cout << "unknow" << endl;
-                delete o;
             }
-            num++;
+//            num++;
 //        }
-//        if ((*it).exist) {
-            rectangle(image, Point((*it).y1, (*it).x1), Point((*it).y2, (*it).x2), Scalar(0, 0, 255), 2, 8, 0);
-            for (int num = 0; num < 5; num++)
-                circle(image, Point((int) *(it->ppoint + num), (int) *(it->ppoint + num + 5)), 2, Scalar(0, 255, 255),
-                       -1);
         }
     }
 

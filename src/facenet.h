@@ -14,7 +14,7 @@ public:
 
     ~facenet();
 
-    void run(Mat &image, mydataFmt *o, int count = 1);
+    void run(Mat &image, vector<mydataFmt> &o, int count = 1);
 
     void prewhiten(Mat &image);
 

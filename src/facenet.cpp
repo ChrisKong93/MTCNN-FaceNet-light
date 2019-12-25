@@ -20,7 +20,7 @@ void facenet::printData(pBox *in) {
     cout << "printData" << endl;
 }
 
-void facenet::run(Mat &image, mydataFmt *o, int count) {
+void facenet::run(Mat &image, vector<mydataFmt> &o, int count) {
     cout << "=====This is No." + to_string(count) + " Picture=====" << endl;
     pBox *output = new pBox;
     pBox *input;
@@ -94,7 +94,8 @@ void facenet::run(Mat &image, mydataFmt *o, int count) {
         divisor = sqrt(sum);
     }
     for (int j = 0; j < Num; ++j) {
-        o[j] = output->pdata[j] / divisor;
+//        o[j] = output->pdata[j] / divisor;
+        o.push_back(output->pdata[j] / divisor);
     }
 //    memcpy(o, output->pdata, Num * sizeof(mydataFmt));
     freepBox(output);
