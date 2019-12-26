@@ -30,7 +30,7 @@ void load_emb_csv(int num, vector<vector<mydataFmt>> &vecVec) {
 
 void write_emb_csv(vector<mydataFmt> &o, int num) {
     ofstream outFile;
-    outFile.open("../emb_csv/" + to_string(num + 1) + ".csv", ios::out); // 打开模式可省略
+    outFile.open("../emb_csv/" + to_string(num) + ".csv", ios::out); // 打开模式可省略
     for (int l = 0; l < Num; ++l) {
 //            cout << o[l] << endl;
         if (l == Num - 1) {
@@ -68,10 +68,10 @@ void run_mtcnn(Mat &image, vector<Rect> &vecRect) {
     }
 }
 
-void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num) {
+void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num = 0) {
     for (int i = 0; i < vecRect.size(); ++i) {
         Mat fourthImage;
-        resize(image(vecRect[i]), fourthImage, Size(299, 299), 0, 0, cv::INTER_LINEAR);
+        resize(image(vecRect[i]), fourthImage, Size(160, 160), 0, 0, cv::INTER_LINEAR);
         facenet ggg;
 //        mydataFmt *o = new mydataFmt[Num];
         vector<mydataFmt> n;
@@ -80,14 +80,18 @@ void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num) {
 
 //        write_emb_csv(n, i);
 //        return;
-        load_emb_csv(csv_num, o);
-        for (int j = 0; j < o.size(); ++j) {
-            float result = compare(n, o[j]);
-            cout << result << endl;
-            if (result < 0.85)
-                cout << "it's me" << endl;
-            else
-                cout << "unknow" << endl;
+        if (csv_num != 0) {
+            load_emb_csv(csv_num, o);
+            for (int j = 0; j < o.size(); ++j) {
+                float result = compare(n, o[j]);
+                cout << result << endl;
+                if (result < 0.85)
+                    cout << "it's me" << endl;
+                else
+                    cout << "unknow" << endl;
+            }
+        } else {
+            write_emb_csv(n, i);
         }
     }
 }
@@ -95,18 +99,22 @@ void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num) {
 void run() {
     int b = 0;
     if (b == 0) {
-//        Mat image = imread("../40.jpg");
+
+        //        Mat image = imread("../40.jpg");
 //        Mat image = imread("../3.jpeg");
-//        Mat image = imread("../Kong_Weiye.jpg");
-        Mat image = imread("../kkk.jpg");
-//        Mat image = imread("../20.png");
+//        Mat image = imread("../xiena.jpg");
+//        Mat image = imread("../kongweiye.jpg");
+//        Mat image = imread("../kkk.jpg");
+        Mat image = imread("../20.png");
 //        Mat image = imread("../emb_img/0.jpg");
+
+
 
         clock_t start;
         start = clock();
         vector<Rect> vecRect;
         run_mtcnn(image, vecRect);
-        run_facenet(image, vecRect, 13);
+        run_facenet(image, vecRect,13);// 第三个参数csv数量，如果为0，则是保存emb到csv功能
 
         imshow("result", image);
         imwrite("../result.jpg", image);
