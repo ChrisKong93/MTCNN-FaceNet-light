@@ -63,7 +63,7 @@ void vectorXmatrix(mydataFmt *matrix, mydataFmt *v, int size, int v_w, int v_h, 
 
 void convolution(const Weight *weight, const pBox *pbox, pBox *outpBox);
 
-void meanAndDev(const Mat &image, mydataFmt *p, mydataFmt *q);
+void meanAndDev(const Mat &image, mydataFmt &p, mydataFmt &q);
 
 void initBN(struct BN *var, struct BN *mean, struct BN *beta, int width);
 

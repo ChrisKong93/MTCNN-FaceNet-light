@@ -9,7 +9,7 @@
 using namespace std;
 //#define mydataFmt double
 #define Num 128
-typedef double mydataFmt;
+typedef float mydataFmt;
 
 
 struct pBox : public cv::String {

@@ -50,7 +50,7 @@ void image2Matrix(const Mat &image, const struct pBox *pbox, int num) {
     mydataFmt mymean, mystddev;
     // prewhiten
     if (num != 0) {
-        meanAndDev(image, &mymean, &mystddev);
+        meanAndDev(image, mymean, mystddev);
         cout << mymean << "----" << mystddev << endl;
         size = image.cols * image.rows * image.channels();
         sqr = sqrt(double(size));
@@ -78,7 +78,7 @@ void image2Matrix(const Mat &image, const struct pBox *pbox, int num) {
     }
 }
 
-void meanAndDev(const Mat &image, mydataFmt *p, mydataFmt *q) {
+void meanAndDev(const Mat &image, mydataFmt &p, mydataFmt &q) {
     mydataFmt meansum = 0, stdsum = 0;
     for (int rowI = 0; rowI < image.rows; rowI++) {
         for (int colK = 0; colK < image.cols; colK++) {
@@ -88,15 +88,15 @@ void meanAndDev(const Mat &image, mydataFmt *p, mydataFmt *q) {
 //            cout << int(image.at<Vec3b>(rowI, colK)[2]) << endl;
         }
     }
-    *p = meansum / (image.cols * image.rows * image.channels());
+    p = meansum / (image.cols * image.rows * image.channels());
     for (int rowI = 0; rowI < image.rows; rowI++) {
         for (int colK = 0; colK < image.cols; colK++) {
-            stdsum += pow((image.at<Vec3b>(rowI, colK)[0] - *p), 2) +
-                      pow((image.at<Vec3b>(rowI, colK)[1] - *p), 2) +
-                      pow((image.at<Vec3b>(rowI, colK)[2] - *p), 2);
+            stdsum += pow((image.at<Vec3b>(rowI, colK)[0] - p), 2) +
+                      pow((image.at<Vec3b>(rowI, colK)[1] - p), 2) +
+                      pow((image.at<Vec3b>(rowI, colK)[2] - p), 2);
         }
     }
-    *q = sqrt(stdsum / (image.cols * image.rows * image.channels()));
+    q = sqrt(stdsum / (image.cols * image.rows * image.channels()));
 }
 
 void featurePadInit(const pBox *pbox, pBox *outpBox, const int pad, const int padw, const int padh) {
@@ -682,10 +682,12 @@ void BatchNorm(struct pBox *pbox, struct BN *var, struct BN *mean, struct BN *be
     mydataFmt *vp = var->pdata;
     mydataFmt *mp = mean->pdata;
     mydataFmt *bp = beta->pdata;
-    double scale = 0.995;
-    double bias = 0.0010000000474974513;
+    int gamma = 1;
+    float epsilon = 0.001;
     long dis = pbox->width * pbox->height;
+    mydataFmt temp = 0;
     for (int channel = 0; channel < pbox->channel; channel++) {
+        temp = gamma / sqrt(((vp[channel]) + epsilon));
         for (int col = 0; col < dis; col++) {
 //            *pp = *pp + *vp;
 //            cout << ((*pp) / (sqrt(*vp + bias))) << endl;
@@ -693,12 +695,12 @@ void BatchNorm(struct pBox *pbox, struct BN *var, struct BN *mean, struct BN *be
 //            if (*pp == 0) {
 //                cout << *vp << "===" << *mp << "===" << *bp << endl;
 //            }
-            *pp = ((*pp) * (scale) / (sqrt(*vp + bias))) + ((*bp) - (((*pp) * (*mp) * (scale)) / (sqrt(*vp + bias))));
+            *pp = temp * (*pp) + ((bp[channel]) - temp * (mp[channel]));
 //            cout << *pp << endl;
             pp++;
         }
-        vp++;
-        mp++;
-        bp++;
+//        vp++;
+//        mp++;
+//        bp++;
     }
 }
