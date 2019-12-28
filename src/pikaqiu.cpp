@@ -213,9 +213,9 @@ void test() {
     cout << "-------------------" << endl;
     cout << result << endl;
     if (result < 0.45)
-        cout << "可能是同一个人" << endl;
+        cout << "Probably the same person" << endl;
     else
-        cout << "很可能不是同一个人" << endl;
+        cout << "Probably not the same person" << endl;
 
     imshow("result0", image0);
     imwrite("../result0.jpg", image0);
