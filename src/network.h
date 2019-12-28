@@ -11,7 +11,6 @@
 #include <string>
 #include <math.h>
 #include "pBox.h"
-//#include <cblas.h>
 
 using namespace cv;
 
@@ -33,10 +32,10 @@ void fullconnect(const Weight *weight, const pBox *pbox, pBox *outpBox);
 
 void readData(string filename, long dataNumber[], mydataFmt *pTeam[], int length = 0);
 
-long initConvAndFc(struct Weight *weight, int schannel, int lchannel, int kersize, int stride, int pad,
+long ConvAndFcInit(struct Weight *weight, int schannel, int lchannel, int kersize, int stride, int pad,
                    int w = 0, int h = 0, int padw = 0, int padh = 0);
 
-void initpRelu(struct pRelu *prelu, int width);
+void pReluInit(struct pRelu *prelu, int width);
 
 void softmax(const struct pBox *pbox);
 
@@ -59,14 +58,21 @@ void nms(vector<struct Bbox> &boundingBox_, vector<struct orderScore> &bboxScore
 
 void refineAndSquareBbox(vector<struct Bbox> &vecBbox, const int &height, const int &width);
 
-void vectorXmatrix(mydataFmt *matrix, mydataFmt *v, int size, int v_w, int v_h, mydataFmt *p);
+void vectorXmatrix(mydataFmt *matrix, mydataFmt *v, int v_w, int v_h, mydataFmt *p);
 
 void convolution(const Weight *weight, const pBox *pbox, pBox *outpBox);
 
-void meanAndDev(const Mat &image, mydataFmt &p, mydataFmt &q);
+void MeanAndDev(const Mat &image, mydataFmt &p, mydataFmt &q);
 
-void initBN(struct BN *var, struct BN *mean, struct BN *beta, int width);
+void conv_merge(pBox *output, pBox *c1 = 0, pBox *c2 = 0, pBox *c3 = 0, pBox *c4 = 0);
+
+void conv_mergeInit(pBox *output, pBox *c1 = 0, pBox *c2 = 0, pBox *c3 = 0, pBox *c4 = 0);
+
+void mulandaddInit(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale);
+
+void mulandadd(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale = 1);
+
+void BatchNormInit(struct BN *var, struct BN *mean, struct BN *beta, int width);
 
 void BatchNorm(struct pBox *pbox, struct BN *var, struct BN *mean, struct BN *beta);
-
 #endif

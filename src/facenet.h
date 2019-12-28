@@ -16,8 +16,6 @@ public:
 
     void run(Mat &image, vector<mydataFmt> &o, int count = 1);
 
-    void prewhiten(Mat &image);
-
 private:
     void Stem(Mat &image, pBox *output);
 
@@ -37,30 +35,9 @@ private:
 
     void fully_connect(pBox *input, pBox *output, string filepath = "");
 
-    void conv_merge(pBox *output, pBox *c1 = 0, pBox *c2 = 0, pBox *c3 = 0, pBox *c4 = 0);
-
-    void conv_mergeInit(pBox *output, pBox *c1 = 0, pBox *c2 = 0, pBox *c3 = 0, pBox *c4 = 0);
-
-    void mulandaddInit(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale);
-
-    void mulandadd(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale = 1);
-
     void Flatten(pBox *input, pBox *output);
 
     void printData(pBox *output);
-
-
-
-//    Mat reImage;
-//    float nms_threshold[3];
-//    vector<float> scales_;
-//    vector<struct Bbox> firstBbox_;
-//    vector<struct orderScore> firstOrderScore_;
-//    vector<struct Bbox> secondBbox_;
-//    vector<struct orderScore> secondBboxScore_;
-//    vector<struct Bbox> thirdBbox_;
-//    vector<struct orderScore> thirdBboxScore_;
-
 };
 
 #endif //MAIN_FACENET_H

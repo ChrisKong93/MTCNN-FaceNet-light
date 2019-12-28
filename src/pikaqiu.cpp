@@ -183,7 +183,7 @@ void run() {
 }
 
 void test() {
-    Mat image0 = imread("../kkk.jpg");
+    Mat image0 = imread("../hejiong1.jpeg");
     Mat image1 = imread("../hejiong0.jpeg");
 
     clock_t start;

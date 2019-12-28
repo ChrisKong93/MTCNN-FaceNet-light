@@ -23,14 +23,14 @@ Pnet::Pnet() {
     this->conv4c1_wb = new Weight;
     this->conv4c2_wb = new Weight;
     //                                 w       sc  lc ks s  p
-    long conv1 = initConvAndFc(this->conv1_wb, 10, 3, 3, 1, 0);
-    initpRelu(this->prelu_gmma1, 10);
-    long conv2 = initConvAndFc(this->conv2_wb, 16, 10, 3, 1, 0);
-    initpRelu(this->prelu_gmma2, 16);
-    long conv3 = initConvAndFc(this->conv3_wb, 32, 16, 3, 1, 0);
-    initpRelu(this->prelu_gmma3, 32);
-    long conv4c1 = initConvAndFc(this->conv4c1_wb, 2, 32, 1, 1, 0);
-    long conv4c2 = initConvAndFc(this->conv4c2_wb, 4, 32, 1, 1, 0);
+    long conv1 = ConvAndFcInit(this->conv1_wb, 10, 3, 3, 1, 0);
+    pReluInit(this->prelu_gmma1, 10);
+    long conv2 = ConvAndFcInit(this->conv2_wb, 16, 10, 3, 1, 0);
+    pReluInit(this->prelu_gmma2, 16);
+    long conv3 = ConvAndFcInit(this->conv3_wb, 32, 16, 3, 1, 0);
+    pReluInit(this->prelu_gmma3, 32);
+    long conv4c1 = ConvAndFcInit(this->conv4c1_wb, 2, 32, 1, 1, 0);
+    long conv4c2 = ConvAndFcInit(this->conv4c2_wb, 4, 32, 1, 1, 0);
     long dataNumber[13] = {conv1, 10, 10, conv2, 16, 16, conv3, 32, 32, conv4c1, 2, conv4c2, 4};
     mydataFmt *pointTeam[13] = {this->conv1_wb->pdata, this->conv1_wb->pbias, this->prelu_gmma1->pdata, \
                             this->conv2_wb->pdata, this->conv2_wb->pbias, this->prelu_gmma2->pdata, \
@@ -171,16 +171,16 @@ Rnet::Rnet() {
     this->score_wb = new Weight;
     this->location_wb = new Weight;
     // //                             w         sc  lc ks s  p
-    long conv1 = initConvAndFc(this->conv1_wb, 28, 3, 3, 1, 0);
-    initpRelu(this->prelu_gmma1, 28);
-    long conv2 = initConvAndFc(this->conv2_wb, 48, 28, 3, 1, 0);
-    initpRelu(this->prelu_gmma2, 48);
-    long conv3 = initConvAndFc(this->conv3_wb, 64, 48, 2, 1, 0);
-    initpRelu(this->prelu_gmma3, 64);
-    long fc4 = initConvAndFc(this->fc4_wb, 128, 576, 1, 1, 0);
-    initpRelu(this->prelu_gmma4, 128);
-    long score = initConvAndFc(this->score_wb, 2, 128, 1, 1, 0);
-    long location = initConvAndFc(this->location_wb, 4, 128, 1, 1, 0);
+    long conv1 = ConvAndFcInit(this->conv1_wb, 28, 3, 3, 1, 0);
+    pReluInit(this->prelu_gmma1, 28);
+    long conv2 = ConvAndFcInit(this->conv2_wb, 48, 28, 3, 1, 0);
+    pReluInit(this->prelu_gmma2, 48);
+    long conv3 = ConvAndFcInit(this->conv3_wb, 64, 48, 2, 1, 0);
+    pReluInit(this->prelu_gmma3, 64);
+    long fc4 = ConvAndFcInit(this->fc4_wb, 128, 576, 1, 1, 0);
+    pReluInit(this->prelu_gmma4, 128);
+    long score = ConvAndFcInit(this->score_wb, 2, 128, 1, 1, 0);
+    long location = ConvAndFcInit(this->location_wb, 4, 128, 1, 1, 0);
     long dataNumber[16] = {conv1, 28, 28, conv2, 48, 48, conv3, 64, 64, fc4, 128, 128, score, 2, location, 4};
     mydataFmt *pointTeam[16] = {this->conv1_wb->pdata, this->conv1_wb->pbias, this->prelu_gmma1->pdata, \
                                 this->conv2_wb->pdata, this->conv2_wb->pbias, this->prelu_gmma2->pdata, \
@@ -303,19 +303,19 @@ Onet::Onet() {
     this->keyPoint_wb = new Weight;
 
     // //                             w        sc  lc ks s  p
-    long conv1 = initConvAndFc(this->conv1_wb, 32, 3, 3, 1, 0);
-    initpRelu(this->prelu_gmma1, 32);
-    long conv2 = initConvAndFc(this->conv2_wb, 64, 32, 3, 1, 0);
-    initpRelu(this->prelu_gmma2, 64);
-    long conv3 = initConvAndFc(this->conv3_wb, 64, 64, 3, 1, 0);
-    initpRelu(this->prelu_gmma3, 64);
-    long conv4 = initConvAndFc(this->conv4_wb, 128, 64, 2, 1, 0);
-    initpRelu(this->prelu_gmma4, 128);
-    long fc5 = initConvAndFc(this->fc5_wb, 256, 1152, 1, 1, 0);
-    initpRelu(this->prelu_gmma5, 256);
-    long score = initConvAndFc(this->score_wb, 2, 256, 1, 1, 0);
-    long location = initConvAndFc(this->location_wb, 4, 256, 1, 1, 0);
-    long keyPoint = initConvAndFc(this->keyPoint_wb, 10, 256, 1, 1, 0);
+    long conv1 = ConvAndFcInit(this->conv1_wb, 32, 3, 3, 1, 0);
+    pReluInit(this->prelu_gmma1, 32);
+    long conv2 = ConvAndFcInit(this->conv2_wb, 64, 32, 3, 1, 0);
+    pReluInit(this->prelu_gmma2, 64);
+    long conv3 = ConvAndFcInit(this->conv3_wb, 64, 64, 3, 1, 0);
+    pReluInit(this->prelu_gmma3, 64);
+    long conv4 = ConvAndFcInit(this->conv4_wb, 128, 64, 2, 1, 0);
+    pReluInit(this->prelu_gmma4, 128);
+    long fc5 = ConvAndFcInit(this->fc5_wb, 256, 1152, 1, 1, 0);
+    pReluInit(this->prelu_gmma5, 256);
+    long score = ConvAndFcInit(this->score_wb, 2, 256, 1, 1, 0);
+    long location = ConvAndFcInit(this->location_wb, 4, 256, 1, 1, 0);
+    long keyPoint = ConvAndFcInit(this->keyPoint_wb, 10, 256, 1, 1, 0);
     long dataNumber[21] = {conv1, 32, 32, conv2, 64, 64, conv3, 64, 64, conv4, 128, 128, fc5, 256, 256, score, 2,
                            location, 4, keyPoint, 10};
     mydataFmt *pointTeam[21] = {this->conv1_wb->pdata, this->conv1_wb->pbias, this->prelu_gmma1->pdata, \

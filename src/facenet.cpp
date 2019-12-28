@@ -4,102 +4,6 @@
 
 #include "facenet.h"
 
-facenet::facenet() {
-
-}
-
-facenet::~facenet() {
-
-}
-
-void facenet::printData(pBox *in) {
-    for (long i = 0; i < in->height * in->width * in->channel; ++i) {
-//        if (in->pdata[i] != 0)
-        printf("%f\n", in->pdata[i]);
-    }
-    cout << "printData" << endl;
-}
-
-void facenet::run(Mat &image, vector<mydataFmt> &o, int count) {
-    cout << "=====This is No." + to_string(count) + " Picture=====" << endl;
-    pBox *output = new pBox;
-    pBox *input;
-    Stem(image, output);
-//    printData(output);
-//    return;
-    cout << "Stem Finally" << endl;
-    input = output;
-    output = new pBox;
-    for (int i = 0; i < 5; ++i) {
-//        model_128/block35_1_list.txt
-        string filepath = "../model_" + to_string(Num) + "/block35_" + to_string((i + 1)) + "_list.txt";
-        Inception_resnet_A(input, output, filepath, 0.17);
-        input = output;
-        output = new pBox;
-    }
-    cout << "Inception_resnet_A Finally" << endl;
-    Reduction_A(input, output);
-    cout << "Reduction_A Finally" << endl;
-    input = output;
-//    freepBox(output);
-    output = new pBox;
-    for (int j = 0; j < 10; ++j) {
-//        model_128/block17_1_list.txt
-        string filepath = "../model_" + to_string(Num) + "/block17_" + to_string((j + 1)) + "_list.txt";
-        Inception_resnet_B(input, output, filepath, 0.1);
-        input = output;
-        output = new pBox;
-    }
-    cout << "Inception_resnet_B Finally" << endl;
-    Reduction_B(input, output);
-    cout << "Reduciotn_B Finally" << endl;
-    input = output;
-//    freepBox(output);
-    output = new pBox;
-    for (int k = 0; k < 5; ++k) {
-//        model_128/block8_1_list.txt
-        string filepath = "../model_" + to_string(Num) + "/block8_" + to_string((k + 1)) + "_list.txt";
-//        cout << filepath << endl;
-        Inception_resnet_C(input, output, filepath, 0.2);
-        input = output;
-//        freepBox(output);
-        output = new pBox;
-    }
-    cout << "Inception_resnet_C Finally" << endl;
-    Inception_resnet_C_None(input, output, "../model_" + to_string(Num) + "/Block8_list.txt");
-    cout << "Inception_resnet_C_None Finally" << endl;
-    input = output;
-//    freepBox(output);
-    output = new pBox;
-    AveragePooling(input, output);
-    cout << "AveragePooling Finally" << endl;
-    input = output;
-//    freepBox(output);
-    output = new pBox;
-    Flatten(input, output);
-    cout << "Flatten Finally" << endl;
-    input = output;
-    output = new pBox;
-    fully_connect(input, output, "../model_" + to_string(Num) + "/Bottleneck_list.txt");
-    cout << "Fully_Connect Finally" << endl;
-    mydataFmt sq = 0, sum = 0;
-    for (int i = 0; i < Num; ++i) {
-        sq = pow(output->pdata[i], 2);
-        sum += sq;
-    }
-    mydataFmt divisor = 0;
-    if (sum < 1e-10) {
-        divisor = sqrt(1e-10);
-    } else {
-        divisor = sqrt(sum);
-    }
-    for (int j = 0; j < Num; ++j) {
-//        o[j] = output->pdata[j] / divisor;
-        o.push_back(output->pdata[j] / divisor);
-    }
-//    memcpy(o, output->pdata, Num * sizeof(mydataFmt));
-    freepBox(output);
-}
 
 void facenet::Stem(Mat &image, pBox *output) {
     pBox *rgb = new pBox;
@@ -142,18 +46,18 @@ void facenet::Stem(Mat &image, pBox *output) {
     struct BN *conv6_mean = new BN;
     struct BN *conv6_beta = new BN;
 
-    long conv1 = initConvAndFc(conv1_wb, 32, 3, 3, 2, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 32);
-    long conv2 = initConvAndFc(conv2_wb, 32, 32, 3, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 32);
-    long conv3 = initConvAndFc(conv3_wb, 64, 32, 3, 1, 1);
-    initBN(conv3_var, conv3_mean, conv3_beta, 64);
-    long conv4 = initConvAndFc(conv4_wb, 80, 64, 1, 1, 0);
-    initBN(conv4_var, conv4_mean, conv4_beta, 80);
-    long conv5 = initConvAndFc(conv5_wb, 192, 80, 3, 1, 0);
-    initBN(conv5_var, conv5_mean, conv5_beta, 192);
-    long conv6 = initConvAndFc(conv6_wb, 256, 192, 3, 2, 0);
-    initBN(conv6_var, conv6_mean, conv6_beta, 256);
+    long conv1 = ConvAndFcInit(conv1_wb, 32, 3, 3, 2, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 32);
+    long conv2 = ConvAndFcInit(conv2_wb, 32, 32, 3, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 32);
+    long conv3 = ConvAndFcInit(conv3_wb, 64, 32, 3, 1, 1);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 64);
+    long conv4 = ConvAndFcInit(conv4_wb, 80, 64, 1, 1, 0);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 80);
+    long conv5 = ConvAndFcInit(conv5_wb, 192, 80, 3, 1, 0);
+    BatchNormInit(conv5_var, conv5_mean, conv5_beta, 192);
+    long conv6 = ConvAndFcInit(conv6_wb, 256, 192, 3, 2, 0);
+    BatchNormInit(conv6_var, conv6_mean, conv6_beta, 256);
 
     long dataNumber[24] = {conv1, 32, 32, 32, conv2, 32, 32, 32, conv3, 64, 64, 64, conv4, 80, 80, 80, conv5, 192, 192,
                            192, conv6, 256, 256, 256};
@@ -301,24 +205,24 @@ void facenet::Inception_resnet_A(pBox *input, pBox *output, string filepath, flo
     struct BN *conv6_beta = new BN;
 
 
-    long conv1 = initConvAndFc(conv1_wb, 32, 256, 1, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 32);
+    long conv1 = ConvAndFcInit(conv1_wb, 32, 256, 1, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 32);
 
-    long conv2 = initConvAndFc(conv2_wb, 32, 256, 1, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 32);
-    long conv3 = initConvAndFc(conv3_wb, 32, 32, 3, 1, 1);
-    initBN(conv3_var, conv3_mean, conv3_beta, 32);
+    long conv2 = ConvAndFcInit(conv2_wb, 32, 256, 1, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 32);
+    long conv3 = ConvAndFcInit(conv3_wb, 32, 32, 3, 1, 1);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 32);
 
-    long conv4 = initConvAndFc(conv4_wb, 32, 256, 1, 1, 0);
-    initBN(conv4_var, conv4_mean, conv4_beta, 32);
-    long conv5 = initConvAndFc(conv5_wb, 32, 32, 3, 1, 1);
-    initBN(conv5_var, conv5_mean, conv5_beta, 32);
-    long conv6 = initConvAndFc(conv6_wb, 32, 32, 3, 1, 1);
-    initBN(conv6_var, conv6_mean, conv6_beta, 32);
+    long conv4 = ConvAndFcInit(conv4_wb, 32, 256, 1, 1, 0);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 32);
+    long conv5 = ConvAndFcInit(conv5_wb, 32, 32, 3, 1, 1);
+    BatchNormInit(conv5_var, conv5_mean, conv5_beta, 32);
+    long conv6 = ConvAndFcInit(conv6_wb, 32, 32, 3, 1, 1);
+    BatchNormInit(conv6_var, conv6_mean, conv6_beta, 32);
 
-    long conv7 = initConvAndFc(conv7_wb, 256, 96, 1, 1, 0);
+    long conv7 = ConvAndFcInit(conv7_wb, 256, 96, 1, 1, 0);
 
-    long conv8 = initConvAndFc(conv8_wb, 256, 0, 0, 0, 0);
+    long conv8 = ConvAndFcInit(conv8_wb, 256, 0, 0, 0, 0);
 
     long dataNumber[28] = {conv1, 32, 32, 32, conv2, 32, 32, 32, conv3, 32, 32, 32, conv4, 32, 32, 32,
                            conv5, 32, 32, 32, conv6, 32, 32, 32, conv7, 256, conv8, 0};
@@ -450,15 +354,15 @@ void facenet::Reduction_A(pBox *input, pBox *output) {
     struct BN *conv4_beta = new BN;
 
 
-    long conv1 = initConvAndFc(conv1_wb, 384, 256, 3, 2, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 384);
+    long conv1 = ConvAndFcInit(conv1_wb, 384, 256, 3, 2, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 384);
 
-    long conv2 = initConvAndFc(conv2_wb, 192, 256, 1, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 192);
-    long conv3 = initConvAndFc(conv3_wb, 192, 192, 3, 1, 0);
-    initBN(conv3_var, conv3_mean, conv3_beta, 192);
-    long conv4 = initConvAndFc(conv4_wb, 256, 192, 3, 2, 0);
-    initBN(conv4_var, conv4_mean, conv4_beta, 256);
+    long conv2 = ConvAndFcInit(conv2_wb, 192, 256, 1, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 192);
+    long conv3 = ConvAndFcInit(conv3_wb, 192, 192, 3, 1, 0);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 192);
+    long conv4 = ConvAndFcInit(conv4_wb, 256, 192, 3, 2, 0);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 256);
     long dataNumber[16] = {conv1, 384, 384, 384, conv2, 192, 192, 192, conv3, 192, 192, 192, conv4, 256, 256, 256};
 
     mydataFmt *pointTeam[16] = {conv1_wb->pdata, conv1_var->pdata, conv1_mean->pdata, conv1_beta->pdata, \
@@ -554,19 +458,19 @@ void facenet::Inception_resnet_B(pBox *input, pBox *output, string filepath, flo
     struct BN *conv4_beta = new BN;
 
 
-    long conv1 = initConvAndFc(conv1_wb, 128, 896, 1, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 128);
+    long conv1 = ConvAndFcInit(conv1_wb, 128, 896, 1, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 128);
 
-    long conv2 = initConvAndFc(conv2_wb, 128, 896, 1, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 128);
-    long conv3 = initConvAndFc(conv3_wb, 128, 128, 0, 1, -1, 7, 1, 3, 0);//[1,7]
-    initBN(conv3_var, conv3_mean, conv3_beta, 128);
-    long conv4 = initConvAndFc(conv4_wb, 128, 128, 0, 1, -1, 1, 7, 0, 3);//[7,1]
-    initBN(conv4_var, conv4_mean, conv4_beta, 128);
+    long conv2 = ConvAndFcInit(conv2_wb, 128, 896, 1, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 128);
+    long conv3 = ConvAndFcInit(conv3_wb, 128, 128, 0, 1, -1, 7, 1, 3, 0);//[1,7]
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 128);
+    long conv4 = ConvAndFcInit(conv4_wb, 128, 128, 0, 1, -1, 1, 7, 0, 3);//[7,1]
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 128);
 
-    long conv5 = initConvAndFc(conv5_wb, 896, 256, 1, 1, 0);
+    long conv5 = ConvAndFcInit(conv5_wb, 896, 256, 1, 1, 0);
 
-    long conv6 = initConvAndFc(conv6_wb, 896, 0, 0, 0, 0);
+    long conv6 = ConvAndFcInit(conv6_wb, 896, 0, 0, 0, 0);
 
     long dataNumber[20] = {conv1, 128, 128, 128, conv2, 128, 128, 128, conv3, 128, 128, 128, conv4, 128, 128, 128,
                            conv5, 896, conv6, 0};
@@ -688,22 +592,22 @@ void facenet::Reduction_B(pBox *input, pBox *output) {
     struct BN *conv7_beta = new BN;
 
 
-    long conv1 = initConvAndFc(conv1_wb, 256, 896, 1, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 256);
-    long conv2 = initConvAndFc(conv2_wb, 384, 256, 3, 2, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 384);
+    long conv1 = ConvAndFcInit(conv1_wb, 256, 896, 1, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 256);
+    long conv2 = ConvAndFcInit(conv2_wb, 384, 256, 3, 2, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 384);
 
-    long conv3 = initConvAndFc(conv3_wb, 256, 896, 1, 1, 0);
-    initBN(conv3_var, conv3_mean, conv3_beta, 256);
-    long conv4 = initConvAndFc(conv4_wb, 256, 256, 3, 2, 0);
-    initBN(conv4_var, conv4_mean, conv4_beta, 256);
+    long conv3 = ConvAndFcInit(conv3_wb, 256, 896, 1, 1, 0);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 256);
+    long conv4 = ConvAndFcInit(conv4_wb, 256, 256, 3, 2, 0);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 256);
 
-    long conv5 = initConvAndFc(conv5_wb, 256, 896, 1, 1, 0);
-    initBN(conv5_var, conv5_mean, conv5_beta, 256);
-    long conv6 = initConvAndFc(conv6_wb, 256, 256, 3, 1, 1);
-    initBN(conv6_var, conv6_mean, conv6_beta, 256);
-    long conv7 = initConvAndFc(conv7_wb, 256, 256, 3, 2, 0);
-    initBN(conv7_var, conv7_mean, conv7_beta, 256);
+    long conv5 = ConvAndFcInit(conv5_wb, 256, 896, 1, 1, 0);
+    BatchNormInit(conv5_var, conv5_mean, conv5_beta, 256);
+    long conv6 = ConvAndFcInit(conv6_wb, 256, 256, 3, 1, 1);
+    BatchNormInit(conv6_var, conv6_mean, conv6_beta, 256);
+    long conv7 = ConvAndFcInit(conv7_wb, 256, 256, 3, 2, 0);
+    BatchNormInit(conv7_var, conv7_mean, conv7_beta, 256);
 
     long dataNumber[28] = {conv1, 256, 256, 256, conv2, 384, 384, 384, conv3, 256, 256, 256, conv4, 256, 256, 256,
                            conv5, 256, 256, 256, conv6, 256, 256, 256, conv7, 256, 256, 256};
@@ -839,18 +743,18 @@ void facenet::Inception_resnet_C(pBox *input, pBox *output, string filepath, flo
     struct BN *conv4_beta = new BN;
 
 
-    long conv1 = initConvAndFc(conv1_wb, 192, 1792, 1, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 192);
-    long conv2 = initConvAndFc(conv2_wb, 192, 1792, 1, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 192);
-    long conv3 = initConvAndFc(conv3_wb, 192, 192, 0, 1, -1, 3, 1, 1, 0);
-    initBN(conv3_var, conv3_mean, conv3_beta, 192);
-    long conv4 = initConvAndFc(conv4_wb, 192, 192, 0, 1, -1, 1, 3, 0, 1);
-    initBN(conv4_var, conv4_mean, conv4_beta, 192);
+    long conv1 = ConvAndFcInit(conv1_wb, 192, 1792, 1, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 192);
+    long conv2 = ConvAndFcInit(conv2_wb, 192, 1792, 1, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 192);
+    long conv3 = ConvAndFcInit(conv3_wb, 192, 192, 0, 1, -1, 3, 1, 1, 0);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 192);
+    long conv4 = ConvAndFcInit(conv4_wb, 192, 192, 0, 1, -1, 1, 3, 0, 1);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 192);
 
-    long conv5 = initConvAndFc(conv5_wb, 1792, 384, 1, 1, 0);
+    long conv5 = ConvAndFcInit(conv5_wb, 1792, 384, 1, 1, 0);
 
-    long conv6 = initConvAndFc(conv6_wb, 1792, 0, 0, 0, 0);
+    long conv6 = ConvAndFcInit(conv6_wb, 1792, 0, 0, 0, 0);
 
     long dataNumber[20] = {conv1, 192, 192, 192, conv2, 192, 192, 192, conv3, 192, 192, 192, conv4, 192, 192, 192,
                            conv5, 1792, conv6, 0};
@@ -959,15 +863,15 @@ void facenet::Inception_resnet_C_None(pBox *input, pBox *output, string filepath
     struct BN *conv4_mean = new BN;
     struct BN *conv4_beta = new BN;
 
-    long conv1 = initConvAndFc(conv1_wb, 192, 1792, 1, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, 192);
-    long conv2 = initConvAndFc(conv2_wb, 192, 1792, 1, 1, 0);
-    initBN(conv2_var, conv2_mean, conv2_beta, 192);
-    long conv3 = initConvAndFc(conv3_wb, 192, 192, 0, 1, -1, 3, 1, 1, 0);
-    initBN(conv3_var, conv3_mean, conv3_beta, 192);
-    long conv4 = initConvAndFc(conv4_wb, 192, 192, 0, 1, -1, 1, 3, 0, 1);
-    initBN(conv4_var, conv4_mean, conv4_beta, 192);
-    long conv5 = initConvAndFc(conv5_wb, 1792, 384, 1, 1, 0);
+    long conv1 = ConvAndFcInit(conv1_wb, 192, 1792, 1, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, 192);
+    long conv2 = ConvAndFcInit(conv2_wb, 192, 1792, 1, 1, 0);
+    BatchNormInit(conv2_var, conv2_mean, conv2_beta, 192);
+    long conv3 = ConvAndFcInit(conv3_wb, 192, 192, 0, 1, -1, 3, 1, 1, 0);
+    BatchNormInit(conv3_var, conv3_mean, conv3_beta, 192);
+    long conv4 = ConvAndFcInit(conv4_wb, 192, 192, 0, 1, -1, 1, 3, 0, 1);
+    BatchNormInit(conv4_var, conv4_mean, conv4_beta, 192);
+    long conv5 = ConvAndFcInit(conv5_wb, 1792, 384, 1, 1, 0);
 
     long dataNumber[18] = {conv1, 192, 192, 192, conv2, 192, 192, 192, conv3, 192, 192, 192, conv4, 192, 192, 192,
                            conv5, 1792};
@@ -1067,8 +971,8 @@ void facenet::fully_connect(pBox *input, pBox *output, string filepath) {
     struct BN *conv1_var = new BN;
     struct BN *conv1_mean = new BN;
     struct BN *conv1_beta = new BN;
-    long conv1 = initConvAndFc(conv1_wb, Num, 1792, input->height, 1, 0);
-    initBN(conv1_var, conv1_mean, conv1_beta, Num);
+    long conv1 = ConvAndFcInit(conv1_wb, Num, 1792, input->height, 1, 0);
+    BatchNormInit(conv1_var, conv1_mean, conv1_beta, Num);
     long dataNumber[4] = {conv1, Num, Num, Num};
 
 //    cout << to_string(sum) << endl;
@@ -1083,117 +987,104 @@ void facenet::fully_connect(pBox *input, pBox *output, string filepath) {
     fullconnect(conv1_wb, input, output);
     BatchNorm(output, conv1_var, conv1_mean, conv1_beta);
 
-//    relu(output, conv1_wb->pbias, prelu_gmma1->pdata);
-
     freeWeight(conv1_wb);
     freeBN(conv1_var);
     freeBN(conv1_mean);
     freeBN(conv1_beta);
 }
 
-void facenet::conv_mergeInit(pBox *output, pBox *c1, pBox *c2, pBox *c3, pBox *c4) {
-    output->channel = 0;
-    output->height = c1->height;
-    output->width = c1->width;
-    if (c1 != 0) {
-        output->channel = c1->channel;
-        if (c2 != 0) {
-            output->channel += c2->channel;
-            if (c3 != 0) {
-                output->channel += c3->channel;
-                if (c4 != 0) {
-                    output->channel += c4->channel;
-                }
-            }
-        }
-    } else { cout << "conv_mergeInit" << endl; }
-    output->pdata = (mydataFmt *) malloc(output->width * output->height * output->channel * sizeof(mydataFmt));
-    if (output->pdata == NULL)cout << "the conv_mergeInit is failed!!" << endl;
-    memset(output->pdata, 0, output->width * output->height * output->channel * sizeof(mydataFmt));
+facenet::facenet() {
+
 }
 
-void facenet::conv_merge(pBox *output, pBox *c1, pBox *c2, pBox *c3, pBox *c4) {
-//    cout << "output->channel:" << output->channel << endl;
-    if (c1 != 0) {
-        long count1 = c1->height * c1->width * c1->channel;
-        //output->pdata = c1->pdata;
-        for (long i = 0; i < count1; i++) {
-            output->pdata[i] = c1->pdata[i];
-        }
-        if (c2 != 0) {
-            long count2 = c2->height * c2->width * c2->channel;
-            for (long i = 0; i < count2; i++) {
-                output->pdata[count1 + i] = c2->pdata[i];
-            }
-            if (c3 != 0) {
-                long count3 = c3->height * c3->width * c3->channel;
-                for (long i = 0; i < count3; i++) {
-                    output->pdata[count1 + count2 + i] = c3->pdata[i];
-                }
-                if (c4 != 0) {
-                    long count4 = c4->height * c4->width * c4->channel;
-                    for (long i = 0; i < count4; i++) {
-                        output->pdata[count1 + count2 + count3 + i] = c4->pdata[i];
-                    }
-                }
-            }
-        }
-    } else { cout << "conv_mergeInit" << endl; }
-//    cout << "output->pdata:" << *(output->pdata) << endl;
+facenet::~facenet() {
+
 }
 
-void facenet::mulandaddInit(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale) {
-    outpBox->channel = temppbox->channel;
-    outpBox->width = temppbox->width;
-    outpBox->height = temppbox->height;
-    outpBox->pdata = (mydataFmt *) malloc(outpBox->width * outpBox->height * outpBox->channel * sizeof(mydataFmt));
-    if (outpBox->pdata == NULL)cout << "the mulandaddInit is failed!!" << endl;
-    memset(outpBox->pdata, 0, outpBox->width * outpBox->height * outpBox->channel * sizeof(mydataFmt));
-}
-
-void facenet::mulandadd(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale) {
-    mydataFmt *ip = inpbox->pdata;
-    mydataFmt *tp = temppbox->pdata;
-    mydataFmt *op = outpBox->pdata;
-    long dis = inpbox->width * inpbox->height * inpbox->channel;
-    for (long i = 0; i < dis; i++) {
-        op[i] = ip[i] + tp[i] * scale;
+void facenet::printData(pBox *in) {
+    for (long i = 0; i < in->height * in->width * in->channel; ++i) {
+//        if (in->pdata[i] != 0)
+        printf("%f\n", in->pdata[i]);
     }
+    cout << "printData" << endl;
 }
 
-void facenet::prewhiten(Mat &image) {
-    double mean, stddev, sqr, stddev_adj;
-    int size;
-
-    Mat temp_m, temp_sd;
-    meanStdDev(image, temp_m, temp_sd);
-    mean = temp_m.at<double>(0, 0);
-    stddev = temp_sd.at<double>(0, 0);
-    size = image.cols * image.rows * image.channels();
-    sqr = sqrt(double(size));
-    if (stddev > 1.0 / sqr) {
-        stddev_adj = stddev;
+void facenet::run(Mat &image, vector<mydataFmt> &o, int count) {
+    cout << "=====This is No." + to_string(count) + " Picture=====" << endl;
+    pBox *output = new pBox;
+    pBox *input;
+    Stem(image, output);
+//    printData(output);
+//    return;
+    cout << "Stem Finally" << endl;
+    input = output;
+    output = new pBox;
+    for (int i = 0; i < 5; ++i) {
+//        model_128/block35_1_list.txt
+        string filepath = "../model_" + to_string(Num) + "/block35_" + to_string((i + 1)) + "_list.txt";
+        Inception_resnet_A(input, output, filepath, 0.17);
+        input = output;
+        output = new pBox;
+    }
+    cout << "Inception_resnet_A Finally" << endl;
+    Reduction_A(input, output);
+    cout << "Reduction_A Finally" << endl;
+    input = output;
+//    freepBox(output);
+    output = new pBox;
+    for (int j = 0; j < 10; ++j) {
+//        model_128/block17_1_list.txt
+        string filepath = "../model_" + to_string(Num) + "/block17_" + to_string((j + 1)) + "_list.txt";
+        Inception_resnet_B(input, output, filepath, 0.1);
+        input = output;
+        output = new pBox;
+    }
+    cout << "Inception_resnet_B Finally" << endl;
+    Reduction_B(input, output);
+    cout << "Reduciotn_B Finally" << endl;
+    input = output;
+//    freepBox(output);
+    output = new pBox;
+    for (int k = 0; k < 5; ++k) {
+//        model_128/block8_1_list.txt
+        string filepath = "../model_" + to_string(Num) + "/block8_" + to_string((k + 1)) + "_list.txt";
+//        cout << filepath << endl;
+        Inception_resnet_C(input, output, filepath, 0.2);
+        input = output;
+//        freepBox(output);
+        output = new pBox;
+    }
+    cout << "Inception_resnet_C Finally" << endl;
+    Inception_resnet_C_None(input, output, "../model_" + to_string(Num) + "/Block8_list.txt");
+    cout << "Inception_resnet_C_None Finally" << endl;
+    input = output;
+//    freepBox(output);
+    output = new pBox;
+    AveragePooling(input, output);
+    cout << "AveragePooling Finally" << endl;
+    input = output;
+//    output = new pBox;
+//    Flatten(input, output);
+//    cout << "Flatten Finally" << endl;
+//    input = output;
+    output = new pBox;
+    fully_connect(input, output, "../model_" + to_string(Num) + "/Bottleneck_list.txt");
+    cout << "Fully_Connect Finally" << endl;
+    mydataFmt sq = 0, sum = 0;
+    for (int i = 0; i < Num; ++i) {
+        sq = pow(output->pdata[i], 2);
+        sum += sq;
+    }
+    mydataFmt divisor = 0;
+    if (sum < 1e-10) {
+        divisor = sqrt(1e-10);
     } else {
-        stddev_adj = 1.0 / sqr;
+        divisor = sqrt(sum);
     }
-    Mat temp_image(image.rows, image.cols, CV_64F);
-    for (int i = 0; i < image.rows; i++) {
-        for (int j = 0; j < image.cols; j++) {
-            image.at<uchar>(i, j);
-            temp_image.at<Vec3b>(i, j)[0] = (image.at<Vec3b>(i, j)[0] - mean) / stddev_adj;
-            temp_image.at<Vec3b>(i, j)[0] = (image.at<Vec3b>(i, j)[0] - mean) / stddev_adj;
-            temp_image.at<Vec3b>(i, j)[0] = (image.at<Vec3b>(i, j)[0] - mean) / stddev_adj;
-            cout << 1 << endl;
-        }
+    for (int j = 0; j < Num; ++j) {
+//        o[j] = output->pdata[j] / divisor;
+        o.push_back(output->pdata[j] / divisor);
     }
-//    double max, min;
-//    minMaxLoc(temp_image, &min, &max);
-//    for (int i = 0; i < image.rows; i++) {
-//        for (int j = 0; j < image.cols; j++) {
-//            double pixelVal = temp_image.at<double>(i, j);
-//            image.at<uchar>(i, j) = temp_image.at<double>(i, j);
-//        }
-//    }
-//    imshow("New Image", image);
-//    waitKey(0);
+//    memcpy(o, output->pdata, Num * sizeof(mydataFmt));
+    freepBox(output);
 }

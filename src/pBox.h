@@ -6,11 +6,14 @@
 #include <opencv2/core/cvstd.hpp>
 #include <vector>
 
+/**
+ * 声明结构体
+ */
+
 using namespace std;
 //#define mydataFmt double
 #define Num 128
 typedef float mydataFmt;
-
 
 struct pBox : public cv::String {
     mydataFmt *pdata;
@@ -18,7 +21,6 @@ struct pBox : public cv::String {
     int height;
     int channel;
 };
-
 
 struct pRelu {
     mydataFmt *pdata;
@@ -30,7 +32,6 @@ struct BN {
     int width;
 };
 
-
 struct Weight {
     mydataFmt *pdata;
     mydataFmt *pbias;
@@ -41,25 +42,6 @@ struct Weight {
     int pad;
     int w;
     int h;
-    int padw;
-    int padh;
-};
-
-class pBox1 {
-public:
-    vector<vector<vector<mydataFmt>>> pdata;
-};
-
-class pRelu1 {
-public:
-    vector<mydataFmt> pdata;
-};
-
-class Weight1 {
-public:
-    vector<vector<vector<vector<mydataFmt>>>> pdata;
-    vector<mydataFmt> pbias;
-    int stride;
     int padw;
     int padh;
 };
