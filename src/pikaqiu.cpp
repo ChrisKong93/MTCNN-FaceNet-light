@@ -3,6 +3,34 @@
 #include "facenet.h"
 #include <time.h>
 
+/**
+ * 图片缩小
+ * @param src 输入图片
+ * @return 返回图片
+ */
+Mat RS(Mat &src) {
+    int w = src.cols;
+    int h = src.rows;
+    int wtemp, htemp;
+    Mat dst;
+    cout << w << "\t" << h << endl;
+    float threshold = 300.0;
+    if (h > threshold) {
+        wtemp = (int) (threshold / h * w);
+        htemp = threshold;
+        dst = Mat::zeros(htemp, wtemp, CV_8UC3); //我要转化为htemp*wtemp大小的
+        resize(src, dst, dst.size());
+    }
+    cout << wtemp << "\t" << htemp << endl;
+    cout << "-------------------" << endl;
+    return dst;
+}
+
+/**
+ * 加载csv中的emb
+ * @param num csv的个数
+ * @param vecVec 将emb参数存在二维vector中，外层定位某个人，内层定位某个emb值
+ */
 void load_emb_csv(int num, vector<vector<mydataFmt>> &vecVec) {
     for (int i = 0; i < num; ++i) {
         ifstream inFile("../emb_csv/" + to_string(i) + ".csv", ios::in);
@@ -28,6 +56,11 @@ void load_emb_csv(int num, vector<vector<mydataFmt>> &vecVec) {
     }
 }
 
+/**
+ * 预处理，保存emb值到csv中
+ * @param o 保存一个人的emb值
+ * @param num 第几个人，确定文件名
+ */
 void write_emb_csv(vector<mydataFmt> &o, int num) {
     ofstream outFile;
     outFile.open("../emb_csv/" + to_string(num) + ".csv", ios::out); // 打开模式可省略
@@ -44,6 +77,12 @@ void write_emb_csv(vector<mydataFmt> &o, int num) {
     cout << "write over!" << endl;
 }
 
+/**
+ * 对比两个人的emb值，计算空间欧氏距离
+ * @param lineArray0 第一个人的emb值
+ * @param lineArray1 第二个人的emb值
+ * @return
+ */
 float compare(vector<mydataFmt> &lineArray0, vector<mydataFmt> &lineArray1) {
     mydataFmt sum = 0;
     for (int i = 0; i < Num; ++i) {
@@ -56,6 +95,12 @@ float compare(vector<mydataFmt> &lineArray0, vector<mydataFmt> &lineArray1) {
     return result;
 }
 
+/**
+ * 执行mtcnn网络
+ * @param image 图片
+ * @param vecRect 获取人脸框
+ * @param vecPoint 获取人脸五个点
+ */
 void run_mtcnn(Mat &image, vector<Rect> &vecRect, vector<Point> &vecPoint) {
 //    vector<Point> vecPoint;
     mtcnn find(image.rows, image.cols);
@@ -68,6 +113,12 @@ void run_mtcnn(Mat &image, vector<Rect> &vecRect, vector<Point> &vecPoint) {
 //    }
 }
 
+/**
+ * 执行facenet网络（一张图与数据库里的多个人脸做比对）
+ * @param image 图片
+ * @param vecRect 人脸框
+ * @param csv_num csv数量 缺省 0 写csv模式
+ */
 void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num = 0) {
     for (int i = 0; i < vecRect.size(); ++i) {
         Mat fourthImage;
@@ -99,28 +150,11 @@ void run_facenet(Mat &image, vector<Rect> &vecRect, int csv_num = 0) {
     }
 }
 
-float test_compare(vector<mydataFmt> &lineArray0, vector<mydataFmt> &lineArray1) {
-    mydataFmt sum = 0;
-    for (int i = 0; i < Num; ++i) {
-//        cout << lineArray0[i] << "===" << lineArray1[i] << endl;
-        mydataFmt sub = lineArray0[i] - lineArray1[i];
-        mydataFmt square = pow(sub, 2);
-        sum += square;
-    }
-    mydataFmt result = sqrt(sum);
-    return result;
-}
-
-void test_facenet(Mat &image, vector<Rect> &vecRect, vector<mydataFmt> &n) {
-    Mat fourthImage;
-    resize(image(vecRect[0]), fourthImage, Size(160, 160), 0, 0, cv::INTER_LINEAR);
-    facenet ggg;
-//        mydataFmt *o = new mydataFmt[Num];
-//    vector<mydataFmt> n;
-    vector<vector<mydataFmt>> o;
-    ggg.run(fourthImage, n, 0);
-}
-
+/**
+ * 执行run_mtcnn和run_facenet
+ * 一张图，通过run_mtcnn找到n个人脸
+ * n个人脸通过run_facenet与数据库里的m个人脸数据做匹配，看看这n个人分别是谁
+ */
 void run() {
     int b = 0;
     if (b == 0) {
@@ -182,9 +216,30 @@ void run() {
     }
 }
 
+/**
+ * 执行单次单人的facenet网络
+ * @param image 输入图片
+ * @param vecRect 人脸框
+ * @param n emb值
+ */
+void test_facenet(Mat &image, vector<Rect> &vecRect, vector<mydataFmt> &n) {
+    Mat fourthImage;
+    resize(image(vecRect[0]), fourthImage, Size(160, 160), 0, 0, cv::INTER_LINEAR);
+    facenet ggg;
+//        mydataFmt *o = new mydataFmt[Num];
+//    vector<mydataFmt> n;
+//    vector<vector<mydataFmt>> o;
+    ggg.run(fourthImage, n, 0);
+}
+
+/**
+ * 对比两张图两个人的emb
+ */
 void test() {
     Mat image0 = imread("../hejiong1.jpeg");
     Mat image1 = imread("../hejiong0.jpeg");
+    image0 = RS(image0);
+    image1 = RS(image1);
 
     clock_t start;
     start = clock();
@@ -209,7 +264,7 @@ void test() {
                    -1);
     }
 
-    float result = test_compare(n0, n1);
+    float result = compare(n0, n1);
     cout << "-------------------" << endl;
     cout << result << endl;
     if (result < 0.45)
@@ -218,20 +273,26 @@ void test() {
         cout << "Probably not the same person" << endl;
 
     imshow("result0", image0);
+//    resizeWindow("result0", w0, h0); //创建一个固定值大小的窗口
     imwrite("../result0.jpg", image0);
     imshow("result1", image1);
     imwrite("../result1.jpg", image1);
     start = clock() - start;
     //    cout<<"time is  "<<start/10e3<<endl;
     cout << "time is " << (double) start / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-    waitKey(0);
+    waitKey(5000);
     image0.release();
     image1.release();
 }
 
+/**
+ * 程序主体
+ * @return
+ */
 int main() {
     for (int i = 0; i < 1; ++i) {
         test();
         cout << "==============================" << endl;
     }
+    return 0;
 }
