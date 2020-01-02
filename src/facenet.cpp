@@ -1003,6 +1003,11 @@ void facenet::AveragePooling(pBox *input, pBox *output) {
     avePooling(input, output, input->height, 2);
 }
 
+/**
+ * flatten 多维转换到一维
+ * @param input
+ * @param output
+ */
 void facenet::Flatten(pBox *input, pBox *output) {
     output->width = input->channel;
     output->height = 1;
@@ -1062,6 +1067,12 @@ void facenet::printData(pBox *in) {
     cout << "printData" << endl;
 }
 
+/**
+ * facenet网络运行入口
+ * @param image
+ * @param o
+ * @param count
+ */
 void facenet::run(Mat &image, vector<mydataFmt> &o, int count) {
     cout << "=====This is No." + to_string(count) + " Picture=====" << endl;
     pBox *output = new pBox;

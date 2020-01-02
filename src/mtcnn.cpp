@@ -74,7 +74,6 @@ void Pnet::run(Mat &image, mydataFmt scale) {
 
     image2Matrix(image, this->rgb);
 
-
     convolution(this->conv1_wb, this->rgb, this->conv1);
     prelu(this->conv1, this->conv1_wb->pbias, this->prelu_gmma1->pdata);
     //Pooling layer
@@ -117,12 +116,6 @@ void Pnet::generateBbox(const struct pBox *score, const struct pBox *location, m
                 bbox.score = *p;
                 order.score = *p;
                 order.oriOrder = count;
-                /*
-                bbox.x1 = round((stride*col + 1) / scale);
-                bbox.y1 = round((stride*row + 1) / scale);
-                bbox.x2 = round((stride*col + 1 + cellsize) / scale);
-                bbox.y2 = round((stride*row + 1 + cellsize) / scale);
-                */
 
                 bbox.x1 = int(round((stride * row + 1) / scale));
                 bbox.y1 = int(round((stride * col + 1) / scale));
