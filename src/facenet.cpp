@@ -291,7 +291,7 @@ void facenet::Inception_resnet_A(pBox *input, pBox *output, string filepath, flo
     convolution(conv7_wb, conv7_out, conv8_out);
     addbias(conv8_out, conv7_wb->pbias);
 
-    mulandaddInit(input, conv8_out, output, scale);
+    mulandaddInit(input, conv8_out, output);
     mulandadd(input, conv8_out, output, scale);
     relu(output, conv8_wb->pbias);
 
@@ -541,7 +541,7 @@ void facenet::Inception_resnet_B(pBox *input, pBox *output, string filepath, flo
     convolution(conv5_wb, conv5_out, conv6_out);
     addbias(conv6_out, conv5_wb->pbias);
 
-    mulandaddInit(input, conv6_out, output, scale);
+    mulandaddInit(input, conv6_out, output);
     mulandadd(input, conv6_out, output, scale);
     relu(output, conv6_wb->pbias);
 
@@ -839,7 +839,7 @@ void facenet::Inception_resnet_C(pBox *input, pBox *output, string filepath, flo
     convolution(conv5_wb, conv5_out, conv6_out);
     addbias(conv6_out, conv5_wb->pbias);
 
-    mulandaddInit(input, conv6_out, output, scale);
+    mulandaddInit(input, conv6_out, output);
     mulandadd(input, conv6_out, output, scale);
     relu(output, conv6_wb->pbias);
 
@@ -962,7 +962,7 @@ void facenet::Inception_resnet_C_None(pBox *input, pBox *output, string filepath
     convolution(conv5_wb, conv5_out, conv6_out);
     addbias(conv6_out, conv5_wb->pbias);
 
-    mulandaddInit(input, conv6_out, output, 1);
+    mulandaddInit(input, conv6_out, output);
     mulandadd(input, conv6_out, output);
 
     freepBox(conv1_out);

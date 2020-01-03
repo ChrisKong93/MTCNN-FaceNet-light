@@ -2,6 +2,8 @@
 
 MTCNN-FaceNet-light with c++
 
-２０１９－１２－０６　修改多处bug，卷积初始化后直接进行卷积
+只用opencv实现MTCNN和FaceNet
 
-２０１９－１２－２４　添加ＢＮ层
+2019-12-06 修改多处bug，卷积初始化后直接进行卷积
+
+2019-12-24 添加BN层
