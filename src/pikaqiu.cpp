@@ -159,17 +159,7 @@ void run() {
     int b = 0;
     if (b == 0) {
 
-//                Mat image = imread("../40.jpg");
-        Mat image = imread("../3.jpeg");
-//        Mat image = imread("../4.jpeg");
-//        Mat image = imread("../xiena.jpeg");
-//        Mat image = imread("../hejiong.jpeg");
-//        Mat image = imread("../libingbing.jpeg");
-//        Mat image = imread("../zhangjie.jpg");
-//        Mat image = imread("../Kong_Weiye.jpg");
-//        Mat image = imread("../kkk.jpg");
-//        Mat image = imread("../20.png");
-//        Mat image = imread("../emb_img/0.jpg");
+        Mat image = imread("../test_img/zhangjie0.jpeg");
 
         clock_t start;
         start = clock();
@@ -180,7 +170,7 @@ void run() {
         run_facenet(image, vecRect, 13);// 第三个参数csv数量，如果为0，则是保存emb到csv功能
 
         imshow("result", image);
-        imwrite("../result.jpg", image);
+        imwrite("../test_img/result.jpg", image);
         start = clock() - start;
         //    cout<<"time is  "<<start/10e3<<endl;
         cout << "time is " << (double) start / CLOCKS_PER_SEC * 1000 << "ms" << endl;
@@ -236,8 +226,8 @@ void test_facenet(Mat &image, vector<Rect> &vecRect, vector<mydataFmt> &n) {
  * 对比两张图两个人的emb
  */
 void test() {
-    Mat image0 = imread("../hejiong1.jpeg");
-    Mat image1 = imread("../hejiong0.jpeg");
+    Mat image0 = imread("../test_img/tom1.jpeg");
+    Mat image1 = imread("../test_img/tom0.jpeg");
     image0 = RS(image0);
     image1 = RS(image1);
 
@@ -274,9 +264,9 @@ void test() {
 
     imshow("result0", image0);
 //    resizeWindow("result0", w0, h0); //创建一个固定值大小的窗口
-    imwrite("../result0.jpg", image0);
+    imwrite("../test_img/result0.jpg", image0);
     imshow("result1", image1);
-    imwrite("../result1.jpg", image1);
+    imwrite("../test_img/result1.jpg", image1);
     start = clock() - start;
     //    cout<<"time is  "<<start/10e3<<endl;
     cout << "time is " << (double) start / CLOCKS_PER_SEC * 1000 << "ms" << endl;
