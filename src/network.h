@@ -72,7 +72,8 @@ void mulandaddInit(const pBox *inpbox, const pBox *temppbox, pBox *outpBox);
 
 void mulandadd(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float scale = 1);
 
-void BatchNormInit(struct BN *var, struct BN *mean, struct BN *beta, int width);
+void BatchNormInit(struct BN *beta, struct BN *mean, struct BN *var, int width);
 
-void BatchNorm(struct pBox *pbox, struct BN *var, struct BN *mean, struct BN *beta);
+void BatchNorm(struct pBox *pbox, struct BN *beta, struct BN *mean, struct BN *var);
+
 #endif

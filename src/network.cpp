@@ -869,14 +869,15 @@ void mulandadd(const pBox *inpbox, const pBox *temppbox, pBox *outpBox, float sc
     }
 }
 
+
 /**
  * BN初始化
- * @param var　方差
- * @param mean　平均值
- * @param beta　beta
+ * @param beta beta
+ * @param mean 平均值
+ * @param var 方差
  * @param width 参数个数
  */
-void BatchNormInit(struct BN *var, struct BN *mean, struct BN *beta, int width) {
+void BatchNormInit(struct BN *beta, struct BN *mean, struct BN *var, int width) {
     var->width = width;
     var->pdata = (mydataFmt *) malloc(width * sizeof(mydataFmt));
     if (var->pdata == NULL)cout << "prelu apply for memory failed!!!!";
@@ -896,11 +897,11 @@ void BatchNormInit(struct BN *var, struct BN *mean, struct BN *beta, int width) 
 /**
  * BN实现
  * @param pbox　输入feature map
- * @param var　方差
- * @param mean　平均值
- * @param beta　beta
+ * @param beta beta
+ * @param mean 平均值
+ * @param var 方差
  */
-void BatchNorm(struct pBox *pbox, struct BN *var, struct BN *mean, struct BN *beta) {
+void BatchNorm(struct pBox *pbox, struct BN *beta, struct BN *mean, struct BN *var) {
     if (pbox->pdata == NULL) {
         cout << "Relu feature is NULL!!" << endl;
         return;
