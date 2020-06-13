@@ -1,7 +1,9 @@
 .idea/
 cmake-build-debug/
+cmake-build-debug-mingw/
 cmake-build-default/
 cmake-build-release/
+cmake-build-release-mingw/
 images/
 model/
 model_128/
