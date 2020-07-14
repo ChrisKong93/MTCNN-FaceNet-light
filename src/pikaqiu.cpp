@@ -226,8 +226,8 @@ void test_facenet(Mat &image, vector<Rect> &vecRect, vector<mydataFmt> &n) {
  * 对比两张图两个人的emb
  */
 void test() {
-    Mat image0 = imread("../test_img/jason0.jpeg");
-    Mat image1 = imread("../test_img/jason1.jpeg");
+    Mat image0 = imread("../test_img/tom1.jpeg");
+    Mat image1 = imread("../test_img/tom0.jpeg");
     image0 = RS(image0);
     image1 = RS(image1);
 
@@ -270,8 +270,7 @@ void test() {
     start = clock() - start;
     //    cout<<"time is  "<<start/10e3<<endl;
     cout << "time is " << (double) start / CLOCKS_PER_SEC * 1000 << "ms" << endl;
-    waitKey(0);
-//    waitKey(5000);
+    waitKey(5000);
     image0.release();
     image1.release();
 }
