@@ -4,6 +4,10 @@ MTCNN-FaceNet-light with c++
 
 只用opencv实现MTCNN和FaceNet
 
+本项目主要是用来学习算法底层的原理，没有用cuda以及其他方式加速，所有速度很慢，对实时性要求很高的朋友就不需要在我这里浪费
+
+时间了，如果你是想研究mtcnn和facenet的底层实现，那可以看看我的项目
+
 运行环境：
 
 Windows下 Clion VS OpenCV
